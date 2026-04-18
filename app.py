@@ -1,77 +1,43 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import requests
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "mistral:latest"  
+app = FastAPI()
 
-app = FastAPI(title="Ollama Web Chat")
+# serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-class PromptRequest(BaseModel):
-    prompt: str
+
+# allow frontend calls
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class ChatRequest(BaseModel):
+    message: str
 
 
 @app.get("/", response_class=HTMLResponse)
-def index():
-    return """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Local Ollama Chat</title>
-    <style>
-        body { font-family: Arial; max-width: 800px; margin: auto; }
-        textarea { width: 100%; height: 100px; }
-        button { padding: 10px 20px; margin-top: 10px; }
-        #response { white-space: pre-wrap; margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <h2>Local Ollama Chat</h2>
-    <textarea id="prompt" placeholder="Ask something..."></textarea><br>
-    <button onclick="send()">Send</button>
-    <div id="response"></div>
-
-    <script>
-        async function send() {
-            const prompt = document.getElementById("prompt").value;
-
-            const res = await fetch("/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ prompt: prompt })
-            });
-
-            const data = await res.json();
-            document.getElementById("response").innerText =
-                data.response || data.error || "No response";
-        }
-    </script>
-</body>
-</html>
-"""
+def home():
+    with open("templates/index.html", "r", encoding="utf-8") as f:
+        return f.read()
 
 
 @app.post("/chat")
-def chat(request: PromptRequest):
-    payload = {
-        "model": MODEL_NAME,
-        "prompt": f"""
-You are a fitness-only AI assistant.
-Only answer questions related to workouts, gym training,
-nutrition, recovery, and injury prevention.
+def chat(req: ChatRequest):
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={
+            "model": "mistral:latest",
+            "prompt": f"You are a gym coach AI. Answer clearly and concisely.\nUser: {req.message}",
+            "stream": False
+        }
+    )
 
-User question:
-{request.prompt}
-""",
-        "stream": False
-    }
-
-    response = requests.post(OLLAMA_URL, json=payload)
-
-    if response.status_code != 200:
-        return {"error": response.text}
-
-    return {"response": response.json().get("response", "")}
+    return {"response": response.json()["response"]}
