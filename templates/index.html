@@ -2,17 +2,21 @@
 <html>
 <head>
     <title>Gym AI Chat</title>
+
     <link rel="stylesheet" href="/static/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
+
 <body>
 
-<div class="container">
+<div class="app">
 
-    <div class="chat-box" id="chat-box"></div>
+    <div class="chat" id="chat"></div>
 
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="Ask your gym AI..." />
-        <button onclick="sendMessage()">Send</button>
+    <div class="input-bar">
+        <input id="input" type="text" placeholder="Ask your gym AI..." />
+        <button id="sendBtn">Send</button>
     </div>
 
 </div>

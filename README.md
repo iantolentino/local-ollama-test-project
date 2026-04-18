@@ -1,46 +1,49 @@
-# 🧠 Local Ollama Gym AI Assistant
+# Local Ollama Gym AI Assistant
 
-A simple local AI chatbot built using **Ollama + FastAPI + HTML UI**.  
-Designed as a lightweight **gym/workout-focused AI assistant** that runs completely offline.
-
----
-
-## 🚀 Features
-
-- Local LLM via Ollama (no API cost)
-- FastAPI backend
-- Simple browser-based chat UI
-- Gym/workout-focused AI responses
-- Fully offline after setup
+A local AI chatbot built using Ollama, FastAPI, and a web-based UI.
+It is designed as a lightweight gym and workout assistant that runs fully offline after setup.
 
 ---
 
-## 🧱 Tech Stack
+## Features
 
-- Python
-- FastAPI
-- Ollama
-- HTML + JavaScript (vanilla)
+* Local LLM via Ollama (no API costs)
+* FastAPI backend server
+* Web-based chat UI (HTML, CSS, JavaScript)
+* Gym/workout-focused AI responses
+* Markdown-formatted responses (clean readable output)
+* AI “thinking” indicator in UI
+* Optimized for faster model inference using phi3
+* Fully offline after setup
 
 ---
 
-## 📦 Requirements
+## Tech Stack
 
-Install:
+* Python
+* FastAPI
+* Ollama
+* HTML, CSS, JavaScript (vanilla frontend)
 
-- Python 3.9+
-- Ollama → https://ollama.com
-- A model (example: mistral)
+---
 
-Pull model:
+## Requirements
+
+### Install dependencies
+
+* Python 3.9+
+* Ollama → [https://ollama.com](https://ollama.com)
+* A local model (recommended: phi3)
+
+### Pull model
 
 ```bash
-ollama pull mistral
-````
+ollama pull phi3
+```
 
 ---
 
-## ⚙️ Setup
+## Setup
 
 ### 1. Create virtual environment
 
@@ -61,15 +64,15 @@ pip install fastapi uvicorn requests
 
 ### 3. Run Ollama
 
-Make sure Ollama is running:
+Ensure Ollama is running and the model is available:
 
 ```bash
-ollama run mistral:latest
+ollama run phi3
 ```
 
 ---
 
-### 4. Start server
+### 4. Start FastAPI server
 
 ```bash
 uvicorn app:app --reload
@@ -77,7 +80,9 @@ uvicorn app:app --reload
 
 ---
 
-### 5. Open in browser
+### 5. Open application
+
+Open in browser:
 
 ```
 http://127.0.0.1:8000
@@ -85,62 +90,89 @@ http://127.0.0.1:8000
 
 ---
 
-## 💬 How it works
+## How it works
 
-1. User enters prompt in browser
-2. FastAPI receives request
-3. Request is sent to Ollama
-4. Model generates response
-5. Response is shown in UI
+1. User enters a message in the web UI
+2. Frontend sends request to FastAPI `/chat`
+3. FastAPI forwards request to Ollama API
+4. Phi-3 model generates a response
+5. Response is returned and rendered in Markdown format in the UI
+6. “AI is thinking” indicator is replaced with final output
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 pj1/
 │
 ├── app.py
+├── templates/
+│   └── index.html
+├── static/
+│   ├── style.css
+│   └── script.js
 ├── README.md
-├── .gitignore
-└── venv/ (ignored)
+└── .gitignore
 ```
 
 ---
 
-## 🧠 Current Model
+## Model Configuration
 
-Default:
+Default model:
 
 ```
-mistral:latest
+phi3:latest
 ```
 
-Change inside `app.py` if needed.
+You can change the model inside `app.py`:
+
+```python
+"model": "phi3:latest"
+```
+
+To check available models:
+
+```bash
+ollama list
+```
 
 ---
 
-## ⚠️ Notes
+## Notes
 
-* This is a local-only AI project
-* No cloud API keys required
 * Ensure Ollama is running before starting FastAPI
-* Model name must match `ollama list` exactly
+* Model name must exactly match installed Ollama model
+* First request may be slower due to model loading (cold start)
+* Performance improves significantly after first load (warm cache)
 
 ---
 
-## 🏗️ Future Improvements
+## Performance Considerations
 
-* Chat memory (conversation history)
-* Streaming responses (typing effect)
-* Better UI (ChatGPT-style interface)
-* Gym-only strict mode enforcement
-* Desktop app packaging (Electron / Tauri)
+To improve speed:
+
+* Use smaller models (phi3 is recommended over mistral)
+* Keep Ollama running in background
+* Avoid restarting model frequently
+* Reduce prompt length in system instructions if needed
 
 ---
 
-## 🧑‍💻 Author
+## Future Improvements
 
-Built as a learning project for local LLM integration using Python + Ollama + FastAPI.
+* Streaming responses (token-by-token output like ChatGPT)
+* Conversation memory (chat history persistence)
+* Enhanced UI (sidebar chat sessions, animations)
+* Workout tracking and progression system
+* Exportable workout plans (PDF/JSON)
+* Desktop app version (Electron or Tauri)
 
-```
+---
+
+## Author
+
+Built as a learning project for integrating local LLMs with Python, FastAPI, and Ollama.
+Focus: gym-focused AI assistant with offline capability.
+

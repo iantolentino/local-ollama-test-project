@@ -7,11 +7,10 @@ import requests
 
 app = FastAPI()
 
-# serve static files
+# Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-# allow frontend calls
+# CORS (frontend access)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,8 +18,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Request schema
 class ChatRequest(BaseModel):
     message: str
+
+
+# System prompt (optimized for speed + gym focus)
+SYSTEM_PROMPT = """
+Gym coach. Short answers. Bullet points only.
+"""
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -31,13 +37,27 @@ def home():
 
 @app.post("/chat")
 def chat(req: ChatRequest):
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "mistral:latest",
-            "prompt": f"You are a gym coach AI. Answer clearly and concisely.\nUser: {req.message}",
-            "stream": False
-        }
-    )
 
-    return {"response": response.json()["response"]}
+    payload = {
+        "model": "phi3:latest",
+        "prompt": f"{SYSTEM_PROMPT}\nUser: {req.message}",
+        "stream": False
+    }
+
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json=payload,
+            timeout=180
+        )
+
+        result = response.json()
+
+        return {
+            "response": result.get("response", "No response from model.")
+        }
+
+    except Exception as e:
+        return {
+            "response": f"Error: {str(e)}"
+        }
