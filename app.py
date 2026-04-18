@@ -21,9 +21,35 @@ class ChatRequest(BaseModel):
     message: str
 
 
-MODEL = "gemma:2b"       # fastest
-# MODEL = "phi3:mini"     # balanced
-# MODEL = "llama3.2:3b"   # smartest
+# MODEL OPTIONS
+MODEL = "phi3:mini"
+# MODEL = "gemma:2b"
+# MODEL = "llama3.2:3b"
+
+
+SYSTEM_PROMPT = """
+You are a professional certified gym coach.
+
+ABSOLUTE RULES:
+- If the user asks for X days, output ALL X days.
+- NEVER stop early.
+- NEVER summarize.
+- NEVER say "this would continue".
+- Output Day 1 through Day X explicitly.
+- No emojis.
+- No blog language.
+- No filler.
+
+FORMAT (MANDATORY):
+
+Day X
+- Exercise — Sets x Reps | Rest
+  Reason: short practical benefit (max 10 words)
+
+Do not include warm-up or cool-down unless asked.
+Keep reasons concise.
+"""
+
 
 @app.get("/", response_class=HTMLResponse)
 def home():
@@ -39,14 +65,25 @@ def chat(req: ChatRequest):
             "http://localhost:11434/api/generate",
             json={
                 "model": MODEL,
-                "prompt": f"You are a strict gym coach AI. Be concise.\nUser: {req.message}",
+                "prompt": f"""
+{SYSTEM_PROMPT}
+
+USER REQUEST:
+{req.message}
+
+IMPORTANT:
+Count days carefully.
+Do not stop until ALL days are complete.
+""",
                 "stream": True,
                 "options": {
-                    "temperature": 0.7,
-                    "num_predict": 200
+                    "temperature": 0.6,
+                    "top_p": 0.9,
+                    "num_predict": 1200
                 }
             },
-            stream=True
+            stream=True,
+            timeout=300
         )
 
         for line in response.iter_lines():
