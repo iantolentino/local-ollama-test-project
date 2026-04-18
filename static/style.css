@@ -1,105 +1,116 @@
 body {
     margin: 0;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    background: #0b0f17;
+    background: #0b0f14;
     color: #e5e7eb;
 }
 
-/* App container */
+/* APP WRAPPER */
 .app {
-    max-width: 800px;
+    width: 100%;
+    max-width: 760px;
     margin: auto;
     height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* Chat area */
+/* HEADER */
+.header {
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px solid #1f2937;
+    background: #0b0f14;
+    color: #9ca3af;
+}
+
+/* CHAT AREA */
 .chat {
     flex: 1;
     overflow-y: auto;
-    padding: 24px;
-    scroll-behavior: smooth;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-/* Message base */
+/* MESSAGE BASE */
 .msg {
-    padding: 14px 16px;
-    margin: 10px 0;
-    border-radius: 14px;
-    max-width: 80%;
-    line-height: 1.5;
-    font-size: 15px;
-    white-space: pre-wrap;
+    max-width: 75%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
     word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
-/* USER bubble */
+/* USER MESSAGE (right side, blue like Telegram accent) */
 .user {
+    align-self: flex-end;
     background: #2563eb;
-    margin-left: auto;
+    color: white;
     border-bottom-right-radius: 4px;
 }
 
-/* AI bubble */
+/* AI MESSAGE (dark gray like ChatGPT/Telegram dark) */
 .ai {
+    align-self: flex-start;
     background: #1f2937;
-    margin-right: auto;
+    color: #e5e7eb;
     border-bottom-left-radius: 4px;
 }
 
-/* typing / thinking */
-.thinking {
-    font-style: italic;
-    opacity: 0.7;
-}
-
-/* input bar */
+/* INPUT BAR */
 .input-bar {
     display: flex;
-    padding: 14px;
+    padding: 10px;
     border-top: 1px solid #1f2937;
-    background: #0b0f17;
+    background: #0b0f14;
 }
 
 input {
     flex: 1;
-    padding: 14px;
+    padding: 10px 12px;
     border-radius: 10px;
     border: 1px solid #1f2937;
     background: #111827;
     color: white;
     outline: none;
+    font-size: 14px;
 }
 
 input:focus {
-    border-color: #2563eb;
+    border-color: #374151;
 }
 
+/* SEND BUTTON */
 button {
     margin-left: 10px;
-    padding: 14px 18px;
+    padding: 10px 14px;
     border: none;
     border-radius: 10px;
     background: #22c55e;
     color: white;
-    cursor: pointer;
     font-weight: 600;
+    cursor: pointer;
 }
 
 button:hover {
     background: #16a34a;
 }
 
-/* markdown formatting */
-.msg h1, .msg h2, .msg h3 {
-    margin: 8px 0;
+/* TEXT CLEANUP */
+.msg p {
+    margin: 4px 0;
 }
 
 .msg ul {
-    padding-left: 20px;
+    margin: 6px 0;
+    padding-left: 18px;
 }
 
 .msg li {
-    margin: 4px 0;
+    margin: 2px 0;
 }

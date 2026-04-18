@@ -1,16 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import requests
+import json
 
 app = FastAPI()
 
-# Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# CORS (frontend access)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,16 +17,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Request schema
 class ChatRequest(BaseModel):
     message: str
 
 
-# System prompt (optimized for speed + gym focus)
-SYSTEM_PROMPT = """
-Gym coach. Short answers. Bullet points only.
-"""
-
+MODEL = "gemma:2b"       # fastest
+# MODEL = "phi3:mini"     # balanced
+# MODEL = "llama3.2:3b"   # smartest
 
 @app.get("/", response_class=HTMLResponse)
 def home():
@@ -38,26 +34,25 @@ def home():
 @app.post("/chat")
 def chat(req: ChatRequest):
 
-    payload = {
-        "model": "phi3:latest",
-        "prompt": f"{SYSTEM_PROMPT}\nUser: {req.message}",
-        "stream": False
-    }
-
-    try:
+    def stream():
         response = requests.post(
             "http://localhost:11434/api/generate",
-            json=payload,
-            timeout=180
+            json={
+                "model": MODEL,
+                "prompt": f"You are a strict gym coach AI. Be concise.\nUser: {req.message}",
+                "stream": True,
+                "options": {
+                    "temperature": 0.7,
+                    "num_predict": 200
+                }
+            },
+            stream=True
         )
 
-        result = response.json()
+        for line in response.iter_lines():
+            if line:
+                data = json.loads(line.decode("utf-8"))
+                if "response" in data:
+                    yield data["response"]
 
-        return {
-            "response": result.get("response", "No response from model.")
-        }
-
-    except Exception as e:
-        return {
-            "response": f"Error: {str(e)}"
-        }
+    return StreamingResponse(stream(), media_type="text/plain")

@@ -1,80 +1,50 @@
-document.addEventListener("DOMContentLoaded", () => {
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("sendBtn");
 
-    const chat = document.getElementById("chat");
-    const input = document.getElementById("input");
-    const sendBtn = document.getElementById("sendBtn");
+function addMessage(text, type, id=null) {
+    const div = document.createElement("div");
+    div.className = `msg ${type}`;
+    if (id) div.id = id;
 
-    function addMessage(text, type, id = null) {
-        const div = document.createElement("div");
-        div.className = `msg ${type}`;
-        if (id) div.id = id;
+    div.innerHTML = marked.parse(text || "");
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    return div;
+}
 
-        // SAFE CHECK (prevents crash)
-        if (typeof marked !== "undefined") {
-            div.innerHTML = marked.parse(text);
-        } else {
-            div.innerText = text;
-        }
+async function send() {
+    const text = input.value.trim();
+    if (!text) return;
 
-        chat.appendChild(div);
-        chat.scrollTop = chat.scrollHeight;
-    }
+    addMessage(text, "user");
+    input.value = "";
 
-    function updateMessage(id, text) {
-        const el = document.getElementById(id);
-        if (!el) return;
+    const id = "ai-" + Date.now();
+    const el = addMessage("", "ai", id);
 
-        if (typeof marked !== "undefined") {
-            el.innerHTML = marked.parse(text);
-        } else {
-            el.innerText = text;
-        }
-    }
-
-    function showThinking() {
-        const id = "thinking-" + Date.now();
-
-        const div = document.createElement("div");
-        div.className = "msg ai thinking";
-        div.id = id;
-        div.innerText = "AI is thinking...";
-
-        chat.appendChild(div);
-        chat.scrollTop = chat.scrollHeight;
-
-        return id;
-    }
-
-    async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
-
-        addMessage(text, "user");
-        input.value = "";
-
-        const thinkingId = showThinking();
-
-        try {
-            const res = await fetch("/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text })
-            });
-
-            const data = await res.json();
-            updateMessage(thinkingId, data.response);
-
-        } catch (err) {
-            updateMessage(thinkingId, "Error: " + err.message);
-        }
-    }
-
-    // button event (SAFE)
-    sendBtn.addEventListener("click", sendMessage);
-
-    // ENTER key support (important UX upgrade)
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") sendMessage();
+    const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ message: text })
     });
 
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    let result = "";
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        result += decoder.decode(value);
+        el.innerHTML = marked.parse(result);
+    }
+}
+
+sendBtn.onclick = send;
+
+input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") send();
 });
