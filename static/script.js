@@ -7,7 +7,9 @@ function addMessage(text, type, id=null) {
     div.className = `msg ${type}`;
     if (id) div.id = id;
 
+    // 🧠 IMPORTANT: render markdown properly (ChatGPT-like)
     div.innerHTML = marked.parse(text || "");
+
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
     return div;
@@ -39,6 +41,8 @@ async function send() {
         if (done) break;
 
         result += decoder.decode(value);
+
+        // 🧠 LIVE markdown rendering (ChatGPT feel)
         el.innerHTML = marked.parse(result);
     }
 }
