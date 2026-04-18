@@ -1,8 +1,3 @@
-Here is the **full, clean README.md** without any cuts:
-
----
-
-````md
 # 🧠 Local Ollama Gym AI Assistant
 
 A simple local AI chatbot built using **Ollama + FastAPI + HTML UI**.  
