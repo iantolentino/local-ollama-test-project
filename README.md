@@ -1,26 +1,29 @@
+
 # Local Ollama Gym AI Assistant
 
-A local AI chatbot built using Ollama, FastAPI, and a web-based UI.
-It is designed as a lightweight gym and workout assistant that runs fully offline after setup.
+A fully local AI chatbot built with **Ollama**, **FastAPI**, and a lightweight web interface.
+Designed as a **gym and workout–focused assistant** that runs entirely offline after initial setup.
+
+This project demonstrates how to integrate local LLMs into a production-style web application without relying on paid APIs or cloud services.
 
 ---
 
-## Features
+## Key Features
 
-* Local LLM via Ollama (no API costs)
-* FastAPI backend server
-* Web-based chat UI (HTML, CSS, JavaScript)
-* Gym/workout-focused AI responses
-* Markdown-formatted responses (clean readable output)
-* AI “thinking” indicator in UI
-* Optimized for faster model inference using phi3
-* Fully offline after setup
+* Local LLM inference via Ollama (no API costs)
+* FastAPI backend with streaming responses
+* Clean, ChatGPT-style web UI
+* Gym and workout–focused prompt design
+* Markdown-formatted responses for readability
+* AI “thinking” indicator during generation
+* Optimized for fast inference using `phi3`
+* Fully offline operation after setup
 
 ---
 
-## Tech Stack
+## Technology Stack
 
-* Python
+* Python 3.9+
 * FastAPI
 * Ollama
 * HTML, CSS, JavaScript (vanilla frontend)
@@ -29,23 +32,37 @@ It is designed as a lightweight gym and workout assistant that runs fully offlin
 
 ## Requirements
 
-### Install dependencies
+### System Requirements
 
-* Python 3.9+
-* Ollama → [https://ollama.com](https://ollama.com)
-* A local model (recommended: phi3)
+* Python 3.9 or newer
+* Ollama installed and running
+  [https://ollama.com](https://ollama.com)
 
-### Pull model
+### Supported Models
+
+Recommended:
+
+* `phi3:mini` (best balance of speed and quality)
+
+Optional:
+
+* `gemma:2b` (fastest)
+* `llama3.2:3b` (better long-form reasoning)
+
+---
+
+## Installation
+
+### 1. Clone the repository
 
 ```bash
-ollama pull phi3
+git clone https://github.com/iantolentino/local-ollama-test-project.git
+cd local-ollama-test-project
 ```
 
 ---
 
-## Setup
-
-### 1. Create virtual environment
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv venv
@@ -54,7 +71,7 @@ venv\Scripts\activate   # Windows
 
 ---
 
-### 2. Install dependencies
+### 3. Install Python dependencies
 
 ```bash
 pip install fastapi uvicorn requests
@@ -62,17 +79,21 @@ pip install fastapi uvicorn requests
 
 ---
 
-### 3. Run Ollama
-
-Ensure Ollama is running and the model is available:
+### 4. Pull an Ollama model
 
 ```bash
-ollama run phi3
+ollama pull phi3:mini
+```
+
+Verify installation:
+
+```bash
+ollama list
 ```
 
 ---
 
-### 4. Start FastAPI server
+### 5. Start the FastAPI server
 
 ```bash
 uvicorn app:app --reload
@@ -80,9 +101,9 @@ uvicorn app:app --reload
 
 ---
 
-### 5. Open application
+### 6. Open the application
 
-Open in browser:
+Open your browser and navigate to:
 
 ```
 http://127.0.0.1:8000
@@ -90,14 +111,14 @@ http://127.0.0.1:8000
 
 ---
 
-## How it works
+## How It Works
 
-1. User enters a message in the web UI
-2. Frontend sends request to FastAPI `/chat`
-3. FastAPI forwards request to Ollama API
-4. Phi-3 model generates a response
-5. Response is returned and rendered in Markdown format in the UI
-6. “AI is thinking” indicator is replaced with final output
+1. User submits a message via the web interface
+2. Frontend sends a request to the FastAPI `/chat` endpoint
+3. FastAPI forwards the prompt to Ollama’s local API
+4. The selected model generates a streamed response
+5. Output is rendered in Markdown format in the UI
+6. “Thinking” indicator is replaced by the final response
 
 ---
 
@@ -120,19 +141,21 @@ pj1/
 
 ## Model Configuration
 
-Default model:
-
-```
-phi3:latest
-```
-
-You can change the model inside `app.py`:
+The active model is configured in `app.py`:
 
 ```python
-"model": "phi3:latest"
+MODEL = "phi3:mini"
 ```
 
-To check available models:
+To switch models:
+
+```python
+MODEL = "gemma:2b"
+# or
+MODEL = "llama3.2:3b"
+```
+
+Model name must exactly match the output of:
 
 ```bash
 ollama list
@@ -140,39 +163,43 @@ ollama list
 
 ---
 
-## Notes
+## Performance Notes
 
-* Ensure Ollama is running before starting FastAPI
-* Model name must exactly match installed Ollama model
-* First request may be slower due to model loading (cold start)
-* Performance improves significantly after first load (warm cache)
+* First request may be slower due to model cold start
+* Subsequent requests are significantly faster
+* Best performance achieved by:
 
----
-
-## Performance Considerations
-
-To improve speed:
-
-* Use smaller models (phi3 is recommended over mistral)
-* Keep Ollama running in background
-* Avoid restarting model frequently
-* Reduce prompt length in system instructions if needed
+  * Keeping Ollama running in the background
+  * Using smaller models (phi3 or gemma)
+  * Avoiding excessive prompt verbosity
 
 ---
 
-## Future Improvements
+## Limitations
 
-* Streaming responses (token-by-token output like ChatGPT)
-* Conversation memory (chat history persistence)
-* Enhanced UI (sidebar chat sessions, animations)
-* Workout tracking and progression system
-* Exportable workout plans (PDF/JSON)
-* Desktop app version (Electron or Tauri)
+* No persistent conversation memory (stateless by default)
+* Performance depends on local hardware
+* Smaller models may struggle with very long structured outputs
+
+---
+
+## Planned Enhancements
+
+* Persistent conversation memory
+* Multi-session chat UI
+* Model auto-selection (speed vs quality)
+* Workout progression tracking
+* Exportable workout plans (PDF / JSON)
+* Desktop packaging (Electron or Tauri)
 
 ---
 
 ## Author
 
-Built as a learning project for integrating local LLMs with Python, FastAPI, and Ollama.
-Focus: gym-focused AI assistant with offline capability.
+Built as a hands-on learning project focused on:
+
+* Local LLM deployment
+* FastAPI backend design
+* Prompt engineering for structured outputs
+* Offline AI application architecture
 
