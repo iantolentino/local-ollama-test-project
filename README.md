@@ -191,6 +191,7 @@ ollama list
 * Workout progression tracking
 * Exportable workout plans (PDF / JSON)
 * Desktop packaging (Electron or Tauri)
+* Copy Functionality
 
 ---
 
