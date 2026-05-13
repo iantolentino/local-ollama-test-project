@@ -1,6 +1,6 @@
 
 # Local Ollama Gym AI Assistant
-
+ 
 A fully local AI chatbot built with **Ollama**, **FastAPI**, and a lightweight web interface.
 Designed as a **gym and workout–focused assistant** that runs entirely offline after initial setup.
 
